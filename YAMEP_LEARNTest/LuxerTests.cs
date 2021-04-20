@@ -2,7 +2,7 @@
 using System;
 using YAMEP_LEARN;
 
-namespace YAMEP_LEARNTest {
+namespace YAMEP_LEARN.Tests {
     [TestClass]
     public class UnitTest1 {
 
@@ -11,9 +11,9 @@ namespace YAMEP_LEARNTest {
             var exprission = "1 + 2";
 
             (Token.TokenType, int, string)[] expectedResults = new (Token.TokenType, int, string)[] {
-                (Token.TokenType.NUMBER, 0, "1"),
+                (Token.TokenType.Number, 0, "1"),
                 (Token.TokenType.Addition, 2, "+"),
-                (Token.TokenType.NUMBER, 4, "2"),
+                (Token.TokenType.Number, 4, "2"),
             };
 
             var lexer = new Lexer(new SourceScanner(exprission));

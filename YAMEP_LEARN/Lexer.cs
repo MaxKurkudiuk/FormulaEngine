@@ -17,6 +17,8 @@ namespace YAMEP_LEARN {
 
         readonly SourceScanner _scanner;
 
+        public int Position => _scanner.Position;
+
         public Lexer(SourceScanner scanner) => _scanner = scanner;
 
         public Token ReadNext() {
@@ -60,7 +62,7 @@ namespace YAMEP_LEARN {
                 while (isDigit(_scanner.Peek()))
                     sb.Append(_scanner.Read().Value);
 
-                token = new Token(Token.TokenType.NUMBER, position, sb.ToString());
+                token = new Token(Token.TokenType.Number, position, sb.ToString());
             }
 
             return token != null;

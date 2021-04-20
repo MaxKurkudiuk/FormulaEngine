@@ -3,7 +3,7 @@
 
         public enum TokenType {
             EOE,            // End of Expression - Sentinel
-            NUMBER,         // [0-9]+
+            Number,         // [0-9]+
             Addition,       // => +
             Subtraction,    // => -
             Multiplication, // => *
