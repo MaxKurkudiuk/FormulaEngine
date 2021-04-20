@@ -76,7 +76,6 @@ namespace YAMEP_LEARN {
         private static void Expect(Lexer lexer, Token.TokenType expected) {
             if (lexer.Peek().Type != expected)
                 throw new Exception($"Expected {expected} at Possition {lexer.Position}");
-
         }
     }
 }
