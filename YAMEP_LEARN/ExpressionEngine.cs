@@ -1,20 +1,20 @@
 ﻿namespace YAMEP_LEARN {
     public static class ExpressionEngine {
-        public static int Evaluate(string expression) {
+        public static double Evaluate(string expression) {
             var astRoot = Parser.Parse(expression);
 
             return Evaluate(astRoot as dynamic);
         }
 
-        static int Evaluate(NumberASTNode node) => node.Value;
+        static double Evaluate(NumberASTNode node) => node.Value;
 
-        static int Evaluate(AdditionBinaryOperatorASTNode node)
+        static double Evaluate(AdditionBinaryOperatorASTNode node)
             => Evaluate(node.Left as dynamic) + Evaluate(node.Right as dynamic);
-        static int Evaluate(SubtractionBinaryOperatorASTNode node)
+        static double Evaluate(SubtractionBinaryOperatorASTNode node)
             => Evaluate(node.Left as dynamic) - Evaluate(node.Right as dynamic);
-        static int Evaluate(MultiplicationBinaryOperatorASTNode node)
+        static double Evaluate(MultiplicationBinaryOperatorASTNode node)
             => Evaluate(node.Left as dynamic) * Evaluate(node.Right as dynamic);
-        static int Evaluate(DivisionBinaryOperatorASTNode node)
+        static double Evaluate(DivisionBinaryOperatorASTNode node)
             => Evaluate(node.Left as dynamic) / Evaluate(node.Right as dynamic);
     }
 }

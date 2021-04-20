@@ -1,18 +1,33 @@
 ﻿namespace YAMEP_LEARN {
+    /// <summary>
+    /// base class for all AST Nodes in the tree
+    /// </summary>
     public abstract class ASTNode {
         public Token Token { get; private set; }
         public ASTNode(Token token) => Token = token;
     }
 
+    /// <summary>
+    /// Represents a basic number [0-9]+
+    /// </summary>
     public class NumberASTNode : ASTNode {
-        public int Value => int.Parse(Token.Value);
+        /// <summary>
+        /// Get the Number value of the Node
+        /// </summary>
+        public double Value => double.Parse(Token.Value);
         public NumberASTNode(Token token) : base(token) { }
     }
 
+    /// <summary>
+    /// Base class for all operators
+    /// </summary>
     public abstract class OperatorASTNode : ASTNode {
         public OperatorASTNode(Token token) : base(token) { }
     }
 
+    /// <summary>
+    /// For all binary operators => LEFT OP RIGHT
+    /// </summary>
     public abstract class BinaryOperatorASTNode : OperatorASTNode {
         public ASTNode Left { get; }
         public ASTNode Right { get; }
