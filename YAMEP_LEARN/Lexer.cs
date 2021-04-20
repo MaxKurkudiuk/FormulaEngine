@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace YAMEP_LEARN {
@@ -60,12 +61,6 @@ namespace YAMEP_LEARN {
         }
 
         /// <summary>
-        /// Accept the Current Token (consume the token and advance the lexer)
-        /// </summary>
-        /// <returns></returns>
-        public Token Accept() => ReadNext();
-
-        /// <summary>
         /// Peek at the next token
         /// </summary>
         /// <returns></returns>
@@ -91,12 +86,8 @@ namespace YAMEP_LEARN {
             return token != null;
         }
 
-        /// <summary>
         /// Try to lex a valid digit [0-9]+
-        /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        private bool TryTokenizeNumber(out Token token) {
+        /*private bool TryTokenizeNumber(out Token token) {
             token = null;
 
             bool isDigit(char? c) => c.HasValue && char.IsDigit(c.Value);
@@ -110,6 +101,70 @@ namespace YAMEP_LEARN {
             }
 
             return token != null;
+        }*/
+
+        /// <summary>
+        /// Examples 1 100 1.5 .5 1e5 .1e5 1e-5
+        /// \d* .? \d+ ( [eE] [-+]? \d+ )?
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        private bool TryTokenizeNumber(out Token token) {
+            token = null;
+            var sb = new StringBuilder();
+            var position = Position;        // where did we start finding the digit
+
+            // \d*
+            sb.Append(ReadDigits());
+
+            // .?
+            if (IsNext(DECIMAL_SEPERATOR)) {
+                sb.Append(Accept());    // accept the decimal
+            }
+
+            // \d+
+            sb.Append(ReadDigits());
+
+            // ( [eE] [-+]? \d+ )?
+            if (sb.Length > 0 && char.IsDigit(sb[sb.Length - 1]) && IsNext(E_NOTAION)) {
+                sb.Append(Accept());                // accept the e
+
+                if (IsNext(SIGN_OPEERATORS)) {      // accept + | -
+                    sb.Append(Accept());
+                }
+                Expect(char.IsDigit);
+                sb.Append(ReadDigits());
+            }
+
+            if (sb.Length > 0)   // found something
+                token = new Token(Token.TokenType.Number, position, sb.ToString());
+
+            if (token != null && !double.TryParse(token.Value, out _))
+                throw new Exception($"Invalid numeric value {token.Value} found at position {token.Position}");
+
+            return token != null;
+        }
+
+        private string ReadDigits() {
+            var sb = new StringBuilder();
+            while (IsNext(char.IsDigit))
+                sb.Append(Accept());
+            return sb.ToString();
+        }
+
+        private char Accept() => _scanner.Read().Value;
+
+        private void Expect(Predicate<char> match) {
+            if (!IsNext(match))
+                throw new Exception($"Unexpected value at position {Position}");
+        }
+
+        private bool IsNext(params char[] possibleValues)
+            => IsNext(x => possibleValues.Any(k => k == x));
+
+        private bool IsNext(Predicate<char> match) {
+            var lookahead = _scanner.Peek();
+            return lookahead.HasValue && match(lookahead.Value);
         }
 
         /// <summary>
