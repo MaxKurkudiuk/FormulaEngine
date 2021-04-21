@@ -9,8 +9,20 @@ using System.Threading.Tasks;
 namespace YAMEP_LEARN.Tests {
     [TestClass()]
     public class ExpressionEngineTests : UnitTestBase{
+
+        [TestMethod()]
+        public void FP_Test_001() {
+            var expression = "1 + 1e5";
+
+            var evalEngine = new ExpressionEngine();
+
+            Assert.AreEqual(100001, evalEngine.Evaluate(expression));
+        }
+
         [TestMethod()]
         public void EvaluateTest_001() {
+            var evalEngine = new ExpressionEngine();
+
             (string, int)[] tests = new (string, int)[] {
                 ("1 + 2", 3),
                 ("2 * 3", 6),
@@ -22,7 +34,7 @@ namespace YAMEP_LEARN.Tests {
             };
 
             foreach (var (e, r) in tests)
-                Assert.AreEqual(r, ExpressionEngine.Evaluate(e));
+                Assert.AreEqual(r, evalEngine.Evaluate(e));
         }
     }
 } 

@@ -31,8 +31,9 @@ namespace YAMEP_LEARN {
                 "1 / 2"
             };
 
+            var evalEngine = new ExpressionEngine();
             foreach (var e in expressions)
-                Console.WriteLine($"{e} = {ExpressionEngine.Evaluate(e)}");
+                Console.WriteLine($"{e} = {evalEngine.Evaluate(e)}");
         }
     }
 }

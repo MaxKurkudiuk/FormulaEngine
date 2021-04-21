@@ -1,12 +1,12 @@
 ﻿namespace YAMEP_LEARN {
-    public static class ExpressionEngine {
+    public class ExpressionEngine {
 
         /// <summary>
         /// Evaluates an expression and returns the final result
         /// </summary>
         /// <param name="expression">the expression to evaluate</param>
         /// <returns></returns>
-        public static double Evaluate(string expression) {
+        public double Evaluate(string expression) {
             var astRoot = new Parser(new Lexer(new SourceScanner(expression))).Parse();
             return Evaluate(astRoot as dynamic);
         }
