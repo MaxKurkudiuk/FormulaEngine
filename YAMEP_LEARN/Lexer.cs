@@ -79,29 +79,14 @@ namespace YAMEP_LEARN {
         private bool TryTokenizeOperator(out Token token) {
             token = null;
 
-            var lookahead = _scanner.Peek();
-            if (lookahead.HasValue && OperatorMap.ContainsKey(lookahead.Value))
-                token = OperatorMap[lookahead.Value](_scanner.Position, _scanner.Read().Value) ;
-
-            return token != null;
-        }
-
-        /// Try to lex a valid digit [0-9]+
-        /*private bool TryTokenizeNumber(out Token token) {
-            token = null;
-
-            bool isDigit(char? c) => c.HasValue && char.IsDigit(c.Value);
-            if (isDigit(_scanner.Peek())) {
-                var position = _scanner.Position;
-                var sb = new StringBuilder();
-                while (isDigit(_scanner.Peek()))
-                    sb.Append(_scanner.Read().Value);
-
-                token = new Token(Token.TokenType.Number, position, sb.ToString());
+            if (IsNext(OperatorMap.ContainsKey)) {
+                var position = Position;
+                var op = Accept();
+                token = OperatorMap[op](position, op);
             }
 
             return token != null;
-        }*/
+        }
 
         /// <summary>
         /// Examples 1 100 1.5 .5 1e5 .1e5 1e-5
@@ -145,7 +130,7 @@ namespace YAMEP_LEARN {
             return token != null;
         }
 
-        private string ReadDigits() {
+        private string ReadDigits() { 
             var sb = new StringBuilder();
             while (IsNext(char.IsDigit))
                 sb.Append(Accept());
@@ -171,9 +156,8 @@ namespace YAMEP_LEARN {
         /// Gobble, gobble, gobble
         /// </summary>
         private void ConsumeWhiteSpace() {
-            bool isWhiteSpace(char? c) => c.HasValue && char.IsWhiteSpace(c.Value);
-            while (isWhiteSpace(_scanner.Peek()))
-                _scanner.Read();
+            while (IsNext(char.IsWhiteSpace))
+                Accept();
         }
     }
 }
