@@ -7,6 +7,46 @@ namespace YAMEP_LEARN.Tests {
     public class LexerTests : UnitTestBase {
 
         [TestMethod()]
+        public void Test_FP_001() {
+            var expected = "100";
+            var lexer = new Lexer(new SourceScanner(expected));
+
+            Assert.AreEqual(expected, lexer.ReadNext().Value);
+        }
+
+        [TestMethod()]
+        public void Test_FP_002() {
+            var expected = "1.5";
+            var lexer = new Lexer(new SourceScanner(expected));
+
+            Assert.AreEqual(expected, lexer.ReadNext().Value);
+        }
+
+        [TestMethod()]
+        public void Test_FP_003() {
+            var expected = ".5";
+            var lexer = new Lexer(new SourceScanner(expected));
+
+            Assert.AreEqual(expected, lexer.ReadNext().Value);
+        }
+
+        [TestMethod()]
+        public void Test_FP_004() {
+            var expected = "1e5";
+            var lexer = new Lexer(new SourceScanner(expected));
+
+            Assert.AreEqual(expected, lexer.ReadNext().Value);
+        }
+
+        [TestMethod()]
+        public void Test_FP_005() {
+            var expected = "1e-5";
+            var lexer = new Lexer(new SourceScanner(expected));
+
+            Assert.AreEqual(expected, lexer.ReadNext().Value);
+        }
+
+        [TestMethod()]
         public void ReadNextTest_SimpleExpression() {
             var lexer = new Lexer(new SourceScanner(SimpleExpression));
 
