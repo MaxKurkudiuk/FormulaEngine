@@ -15,10 +15,24 @@ namespace YAMEP_LEARN {
 
             var lexer = new Lexer(new SourceScanner(expression));
 
-            while(lexer.Peek().Type != Token.TokenType.EOE) {
-                var token = lexer.ReadNext();
-                Console.WriteLine($"Token {token.Value} found at position {token.Position}");
-            }
+            Console.WriteLine($"Lexing expression: {expression}");
+
+            Token token = null;
+            do {
+                token = lexer.ReadNext();
+                Console.WriteLine($"Found Token Type {token.Type} at Position {token.Position} with a value of '{token.Value}'");
+            } while (token.Type != Token.TokenType.EOE);
+
+            var expressions = new string[] {
+                "1 + 2",        //3
+                "2 * 3",        //6
+                "1 + 2 * 3",    //7
+                "1",
+                "1 / 2"
+            };
+
+            foreach (var e in expressions)
+                Console.WriteLine($"{e} = {ExpressionEngine.Evaluate(e)}");
         }
     }
 }

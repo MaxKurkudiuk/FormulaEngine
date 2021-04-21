@@ -10,9 +10,27 @@
             Division,       // => /
         }
 
+        /// <summary>
+        /// The type of token <see cref="TokenType"/>
+        /// </summary>
         public TokenType Type { get; }
+
+        /// <summary>
+        /// Position of where the token is found in the source expression
+        /// </summary>
         public int Position { get; }
+
+        /// <summary>
+        /// Textual value of the token
+        /// </summary>
         public string Value { get; }
+
+        /// <summary>
+        /// Constructor for a Token with the specified position and value
+        /// </summary>
+        /// <param name="type"><see cref="Type"/></param>
+        /// <param name="position"><see cref="Position"/></param>
+        /// <param name="value"><see cref="Value"/></param>
         public Token(TokenType type, int position, string value) {
             Type = type;
             Position = position;
