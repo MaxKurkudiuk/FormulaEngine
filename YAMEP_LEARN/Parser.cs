@@ -9,34 +9,39 @@ namespace YAMEP_LEARN {
     ///     FACTOR: NUMBER
     ///     NUMBER: [0-9]+
     /// </summary>
-    public static class Parser {
+    public class Parser {
+
+        Lexer _lexer;
+
+        public Parser(Lexer lexer) => _lexer = lexer;
+
         /// <summary>
         /// Parses the suplied expression and returns the root node of the AST
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static ASTNode Parse(string expression) => ParseExpression(new Lexer(new SourceScanner(expression)));
+        public ASTNode Parse() => ParseExpression();
 
         /// <summary>
         /// Parses the EXPRESSION Production Rule
         /// EXPRESSION: TERM [('+'|'-')] TERM*
         /// </summary>
         /// <returns></returns>
-        private static ASTNode ParseExpression(Lexer lexer) {
-            var left = ParseTerm(lexer);
+        private ASTNode ParseExpression() {
+            var left = ParseTerm();
 
-            var peekToken = lexer.Peek();       // look a head 1 token
+            var peekToken = _lexer.Peek();       // look a head 1 token
             while(peekToken.Type == Token.TokenType.Addition || peekToken.Type == Token.TokenType.Subtraction) {
-                var op = lexer.ReadNext();      // read the operator
+                var op = _lexer.ReadNext();      // read the operator
 
-                var right = ParseTerm(lexer);
+                var right = ParseTerm();
 
                 if (right == null)
-                    throw new Exception($"Invalid Expression. TERM Expected at position {lexer.Position}");
+                    throw new Exception($"Invalid Expression. TERM Expected at position {_lexer.Position}");
 
                 left = CreateBinaryOperator(op, left, right);
 
-                peekToken = lexer.Peek();       // look a head of 1 token LL(k) where K = 1
+                peekToken = _lexer.Peek();       // look a head of 1 token LL(k) where K = 1
             }
 
             return left;
@@ -47,27 +52,27 @@ namespace YAMEP_LEARN {
         /// TERM: FACTOR[('*'|'/')] FACTOR]*
         /// </summary>
         /// <returns></returns>
-        private static ASTNode ParseTerm(Lexer lexer) {
+        private ASTNode ParseTerm() {
 
             //1 * 2 * 3
             //
             //    *
             //  1   *
             //    2   3
-            var left = ParseFactor(lexer);
+            var left = ParseFactor();
 
-            var peekToken = lexer.Peek();       // look a head 1 token
+            var peekToken = _lexer.Peek();       // look a head 1 token
             while (peekToken.Type == Token.TokenType.Multiplication || peekToken.Type == Token.TokenType.Division) {
-                var op = lexer.ReadNext();      // read the operator
+                var op = _lexer.ReadNext();      // read the operator
 
-                var right = ParseFactor(lexer);
+                var right = ParseFactor();
 
                 if (right == null)
-                    throw new Exception($"Invalid Expression. FOCTOR Expected at position {lexer.Position}");
+                    throw new Exception($"Invalid Expression. FOCTOR Expected at position {_lexer.Position}");
 
                 left = CreateBinaryOperator(op, left, right);
 
-                peekToken = lexer.Peek();       // look a head of token LL(k) whwre K = 1
+                peekToken = _lexer.Peek();       // look a head of token LL(k) whwre K = 1
             }
 
             return left;
@@ -78,7 +83,7 @@ namespace YAMEP_LEARN {
         /// FACTOR: NUMBER
         /// </summary>
         /// <returns></returns>
-        private static ASTNode ParseFactor(Lexer lexer) => ParseNumber(lexer);
+        private ASTNode ParseFactor() => ParseNumber();
 
         /// <summary>
         /// Preses the NUMBER Production Rule
@@ -86,17 +91,17 @@ namespace YAMEP_LEARN {
         /// </summary>
         /// <param name="lexer"></param>
         /// <returns></returns>
-        private static ASTNode ParseNumber(Lexer lexer) {
-            var token = lexer.Peek();
+        private ASTNode ParseNumber() {
+            var token = _lexer.Peek();
             if (token.Type != Token.TokenType.Number)
-                throw new Exception($"Invalid Expression. NUMBER Expected at position {lexer.Position}");
+                throw new Exception($"Invalid Expression. NUMBER Expected at position {_lexer.Position}");
 
-            Accept(lexer);
+            Accept();
 
             return new NumberASTNode(token);
         }
 
-        private static ASTNode CreateBinaryOperator(Token token, ASTNode left, ASTNode right) {
+        private ASTNode CreateBinaryOperator(Token token, ASTNode left, ASTNode right) {
             switch (token.Type) {
                 case Token.TokenType.Addition: return new AdditionBinaryOperatorASTNode(token, left, right);
                 case Token.TokenType.Subtraction: return new SubtractionBinaryOperatorASTNode(token, left, right);
@@ -107,6 +112,6 @@ namespace YAMEP_LEARN {
             }
         }
 
-        private static void Accept(Lexer lexer) => lexer.ReadNext();
+        private void Accept() => _lexer.ReadNext();
     }
 }

@@ -15,7 +15,7 @@ namespace YAMEP_LEARN.Tests {
             //            Left            Right
             //            /                  \
             //        Number(11)           Number(2)
-            var ast = Parser.Parse(expression) as BinaryOperatorASTNode;
+            var ast = new Parser(new Lexer(new SourceScanner(expression))).Parse() as BinaryOperatorASTNode;
 
             Assert.IsNotNull(ast);
 
@@ -37,7 +37,7 @@ namespace YAMEP_LEARN.Tests {
             //            Left        BinaryOperator(*)
             //            /              /         \
             //        Number(1)     Number(2)    Number(3)
-            var ast = Parser.Parse(expression) as BinaryOperatorASTNode;
+            var ast = new Parser(new Lexer(new SourceScanner(expression))).Parse() as BinaryOperatorASTNode;
 
             Assert.IsNotNull(ast);
 
@@ -57,7 +57,7 @@ namespace YAMEP_LEARN.Tests {
         [ExpectedException(typeof(Exception))]
         public void ParseTest_003() {
             var expression = "1 +";
-            _ = Parser.Parse(expression);
+            _ = new Parser(new Lexer(new SourceScanner(expression))).Parse();
         }
     }
 }

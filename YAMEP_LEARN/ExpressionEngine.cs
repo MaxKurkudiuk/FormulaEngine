@@ -7,7 +7,7 @@
         /// <param name="expression">the expression to evaluate</param>
         /// <returns></returns>
         public static double Evaluate(string expression) {
-            var astRoot = Parser.Parse(expression);
+            var astRoot = new Parser(new Lexer(new SourceScanner(expression))).Parse();
             return Evaluate(astRoot as dynamic);
         }
 
