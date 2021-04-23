@@ -11,7 +11,7 @@ namespace YAMEP_LEARN {
      */
     class Program {
         static void Main(string[] args) {
-            var expression = "1+22 -32* 4/ 5";
+            var expression = "1+2*3";
 
             var lexer = new Lexer(new SourceScanner(expression));
 
@@ -23,6 +23,9 @@ namespace YAMEP_LEARN {
                 Console.WriteLine($"Found Token Type {token.Type} at Position {token.Position} with a value of '{token.Value}'");
             } while (token.Type != Token.TokenType.EOE);
 
+            var evalEngine = new ExpressionEngine();
+            Console.WriteLine($"{expression} = {evalEngine.Evaluate(expression)}");
+            return;
             var expressions = new string[] {
                 "1 + 2",        //3
                 "2 * 3",        //6
@@ -31,7 +34,7 @@ namespace YAMEP_LEARN {
                 "1 / 2"
             };
 
-            var evalEngine = new ExpressionEngine();
+            
             foreach (var e in expressions)
                 Console.WriteLine($"{e} = {evalEngine.Evaluate(e)}");
         }

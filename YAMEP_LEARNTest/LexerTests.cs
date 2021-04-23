@@ -47,6 +47,34 @@ namespace YAMEP_LEARN.Tests {
         }
 
         [TestMethod()]
+        public void ReadNextTest_ExpressionWithBrackets() {
+            var lexer = new Lexer(new SourceScanner("(1+2)"));
+
+            // expression contains the following
+            // ( -> bracket
+            // 1 -> number
+            // + -> addition
+            // 2 -> number
+            // ) -> bracket
+
+            (Token.TokenType, int, string)[] expectedValues = new (Token.TokenType, int, string)[] {
+               ( Token.TokenType.OpenParen,0,"("),
+               ( Token.TokenType.Number,1,"1"),
+               ( Token.TokenType.Addition,2,"+"),
+               ( Token.TokenType.Number,3,"2"),
+               ( Token.TokenType.CloseParen,4,")"),
+               ( Token.TokenType.EOE,5,null),
+           };
+
+            foreach (var (t, p, v) in expectedValues) {
+                var token = lexer.ReadNext();
+                Assert.AreEqual(token.Type, t);
+                Assert.AreEqual(token.Position, p);
+                Assert.AreEqual(token.Value, v);
+            }
+        }
+
+        [TestMethod()]
         public void ReadNextTest_SimpleExpression() {
             var lexer = new Lexer(new SourceScanner(SimpleExpression));
 

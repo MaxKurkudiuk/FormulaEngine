@@ -14,15 +14,19 @@ namespace YAMEP_LEARN {
         const char MULTIPLICATION       = '*';
         const char DIVISION             = '/';
         const char DECIMAL_SEPERATOR    = '.';
+        const char OPEN_PAREN           = '(';
+        const char CLOSE_PAREN          = ')';
 
         static readonly char[] E_NOTAION            = new char[] { 'e', 'E' };
         static readonly char[] SIGN_OPEERATORS      = new char[] { PLUS, MINUS };
 
-        readonly static Dictionary<char, Func<int, char, Token>> OperatorMap = new Dictionary<char, Func<int, char, Token>> {
+        readonly static Dictionary<char, Func<int, char, Token>> SimpleTokenMap = new Dictionary<char, Func<int, char, Token>> {
             { PLUS, (p, v) => new Token(Token.TokenType.Addition, p, v.ToString())},
             { MINUS, (p, v) => new Token(Token.TokenType.Subtraction, p, v.ToString())},
             { MULTIPLICATION, (p, v) => new Token(Token.TokenType.Multiplication, p, v.ToString())},
             { DIVISION, (p, v) => new Token(Token.TokenType.Division, p, v.ToString())},
+            { OPEN_PAREN, (p, v) => new Token(Token.TokenType.OpenParen, p, v.ToString())},
+            { CLOSE_PAREN, (p, v) => new Token(Token.TokenType.CloseParen, p, v.ToString())},
         };
 
         readonly SourceScanner _scanner;
@@ -50,7 +54,7 @@ namespace YAMEP_LEARN {
 
             // Attempt to parse out the supported tokens
 
-            if (TryTokenizeOperator(out var token))
+            if (TryTokenizeSimpleToken(out var token))
                 return token;
 
             if (TryTokenizeNumber(out token))
@@ -76,13 +80,13 @@ namespace YAMEP_LEARN {
         /// </summary>
         /// <param name="token">Token representing the Operator if found</param>
         /// <returns></returns>
-        private bool TryTokenizeOperator(out Token token) {
+        private bool TryTokenizeSimpleToken(out Token token) {
             token = null;
 
-            if (IsNext(OperatorMap.ContainsKey)) {
+            if (IsNext(SimpleTokenMap.ContainsKey)) {
                 var position = Position;
                 var op = Accept();
-                token = OperatorMap[op](position, op);
+                token = SimpleTokenMap[op](position, op);
             }
 
             return token != null;

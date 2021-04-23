@@ -8,6 +8,8 @@
             Subtraction,    // => -
             Multiplication, // => *
             Division,       // => /
+            OpenParen,      // => (
+            CloseParen,     // => )
         }
 
         /// <summary>

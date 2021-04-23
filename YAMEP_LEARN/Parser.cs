@@ -7,8 +7,7 @@ namespace YAMEP_LEARN {
     /// Implements the following Production Rules
     /// EXPRESSION: TERM [('+'|'-')] TERM*
     ///       TERM: FACTOR [('*'|'/')] FACTOR]*
-    ///     FACTOR: NUMBER
-    ///     NUMBER: [0-9]+
+    ///     FACTOR: '(' EXPRESSION ')' | NUMBER
     /// </summary>
     public class Parser {
 
@@ -68,10 +67,23 @@ namespace YAMEP_LEARN {
 
         /// <summary>
         /// Parses the FACTOR Production Rule
-        /// FACTOR: NUMBER
+        /// FACTOR: '(' EXPRESSION ')' | NUMBER
         /// </summary>
         /// <returns></returns>
-        private ASTNode ParseFactor() => ParseNumber();
+        private ASTNode ParseFactor() {
+            ASTNode node;
+
+            if (IsNext(Token.TokenType.OpenParen)) {
+                Accept();   // consume the open paren
+                node = ParseExpression();
+                Expect(Token.TokenType.CloseParen);
+                Accept();   // consume the close paren
+            } else {
+                node = ParseNumber();
+            }
+
+            return node;
+        }
 
         /// <summary>
         /// Preses the NUMBER Production Rule

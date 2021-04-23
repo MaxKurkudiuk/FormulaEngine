@@ -29,8 +29,8 @@
     /// For all binary operators => LEFT OP RIGHT
     /// </summary>
     public abstract class BinaryOperatorASTNode : OperatorASTNode {
-        public ASTNode Left { get; }
-        public ASTNode Right { get; }
+        public ASTNode Left { get; protected set; }
+        public ASTNode Right { get; protected set; }
         public BinaryOperatorASTNode(Token token, ASTNode left, ASTNode right) : base(token) {
             Left = left;
             Right = right;
