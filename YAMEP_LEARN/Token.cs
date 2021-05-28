@@ -10,7 +10,8 @@
             Division,       // => /
             OpenParen,      // => (
             CloseParen,     // => )
-            Factorial       // => !
+            Factorial,      // => !
+            Exponent        // => ^
         }
 
         /// <summary>

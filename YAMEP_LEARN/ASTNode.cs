@@ -65,4 +65,9 @@
     public class DivisionBinaryOperatorASTNode : BinaryOperatorASTNode {
         public DivisionBinaryOperatorASTNode(Token token, ASTNode left, ASTNode right) : base(token, left, right) { }
     }
+
+    public class ExponentBinaryOperatorASTNode : BinaryOperatorASTNode {
+        public ExponentBinaryOperatorASTNode(Token token, ASTNode left, ASTNode right) : base(token, left, right) {
+        }
+    }
 }

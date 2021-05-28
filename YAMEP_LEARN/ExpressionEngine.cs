@@ -1,11 +1,13 @@
-﻿namespace YAMEP_LEARN {
+﻿using System;
+
+namespace YAMEP_LEARN {
     public class ExpressionEngine {
 
         /// <summary>
         /// Evaluates an expression and returns the final result
         /// </summary>
         /// <param name="expression">the expression to evaluate</param>
-        /// <returns></returns>
+        /// <returns>the result</returns>
         public double Evaluate(string expression) {
             var astRoot = new Parser(new Lexer(new SourceScanner(expression))).Parse();
             return Evaluate(astRoot as dynamic);
@@ -15,6 +17,8 @@
         static double Evaluate(SubtractionBinaryOperatorASTNode node) => Evaluate(node.Left as dynamic) - Evaluate(node.Right as dynamic);
         static double Evaluate(MultiplicationBinaryOperatorASTNode node) => Evaluate(node.Left as dynamic) * Evaluate(node.Right as dynamic);
         static double Evaluate(DivisionBinaryOperatorASTNode node) => Evaluate(node.Left as dynamic) / Evaluate(node.Right as dynamic);
+        static double Evaluate(ExponentBinaryOperatorASTNode node)
+            => Math.Pow(Evaluate(node.Left as dynamic), Evaluate(node.Right as dynamic));
         static double Evaluate(NumberASTNode node) => node.Value;
         static double Evaluate(NegationUnaryOperatorASTNode node) => -1 * Evaluate(node.Target as dynamic);
         static double Evaluate(FactorialUnaryOperatorASTNode node) {

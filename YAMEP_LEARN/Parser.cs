@@ -7,8 +7,8 @@ namespace YAMEP_LEARN {
     /// Implements the following Production Rules
     ///       EXPRESSION: TERM [('+'|'-')] TERM*
     ///             TERM: FACTOR [('*'|'/')] FACTOR]*
-    ///           FACTOR: '-'? FACTORIAL_FACTOR
-    ///         EXPONENT:
+    ///           FACTOR: '-'? EXPONENT
+    ///         EXPONENT: FACTORIAL_FACTOR [ '^' EXPONENT ]*
     /// FACTORIAL_FACTOR: PRIMARY '!'?
     ///          PRIMARY: NUMBER | SUB_EXPRESSION
     ///   SUB_EXPRESSION: '(' EXPRESSION ')'
@@ -81,16 +81,37 @@ namespace YAMEP_LEARN {
 
         /// <summary>
         /// Parses the FACTOR Production Rule
-        /// FACTOR: '-'? FACTORIAL_FACTOR
+        /// FACTOR: '-'? EXPONENT
         /// </summary>
         /// <returns></returns>
         private ASTNode ParseFactor() {
             ASTNode node = default;
 
             if (IsNext(Token.TokenType.Minus)) {
-                node = new NegationUnaryOperatorASTNode(Accept(), ParseFactorialFactor());
+                node = new NegationUnaryOperatorASTNode(Accept(), ParseExponent());
             } else {
-                node = ParseFactorialFactor();
+                node = ParseExponent();
+            }
+
+            return node;
+        }
+
+        /// <summary>
+        /// Parses the EXPONENT Production Rule
+        /// EXPONENT: FACTORIAL_FACTOR [ '^' EXPONENT ]*
+        /// </summary>
+        private ASTNode ParseExponent() {
+            ASTNode node = ParseFactorialFactor();
+
+            if (IsNext(Token.TokenType.Exponent)) {
+                var op = Accept(); // accept the operator
+                // example 2^3^2
+                // lift_node(2)
+                // right_node(exponent_node(left(3), right(2))
+                //      ^
+                //    2   ^
+                //      3   2
+                node = new ExponentBinaryOperatorASTNode(op, node, ParseExponent());
             }
 
             return node;

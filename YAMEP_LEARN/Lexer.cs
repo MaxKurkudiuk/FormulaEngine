@@ -17,6 +17,7 @@ namespace YAMEP_LEARN {
         const char OPEN_PAREN           = '(';
         const char CLOSE_PAREN          = ')';
         const char FACTORIAL            = '!';
+        const char EXPONENT             = '^';
 
         static readonly char[] E_NOTAION            = new char[] { 'e', 'E' };
         static readonly char[] SIGN_OPEERATORS      = new char[] { PLUS, MINUS };
@@ -28,7 +29,8 @@ namespace YAMEP_LEARN {
             { DIVISION, (p, v) => new Token(Token.TokenType.Division, p, v.ToString())},
             { OPEN_PAREN, (p, v) => new Token(Token.TokenType.OpenParen, p, v.ToString())},
             { CLOSE_PAREN, (p, v) => new Token(Token.TokenType.CloseParen, p, v.ToString())},
-            { FACTORIAL, (p, v) => new Token(Token.TokenType.Factorial, p, v.ToString()) }
+            { FACTORIAL, (p, v) => new Token(Token.TokenType.Factorial, p, v.ToString()) },
+            { EXPONENT, (p, v) => new Token(Token.TokenType.Exponent, p, v.ToString()) }
         };
 
         readonly SourceScanner _scanner;

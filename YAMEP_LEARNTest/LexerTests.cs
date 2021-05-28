@@ -47,6 +47,16 @@ namespace YAMEP_LEARN.Tests {
         }
 
         [TestMethod()]
+        public void Test_FP_006() {
+            var expected = "3^2";
+            var lexer = new Lexer(new SourceScanner(expected));
+
+            Assert.AreEqual("3", lexer.ReadNext().Value);
+            Assert.AreEqual("^", lexer.ReadNext().Value);
+            Assert.AreEqual("2", lexer.ReadNext().Value);
+        }
+
+        [TestMethod()]
         public void ReadNextTest_ExpressionWithBrackets() {
             var lexer = new Lexer(new SourceScanner("(1+2)"));
 
