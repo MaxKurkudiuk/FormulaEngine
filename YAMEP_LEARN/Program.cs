@@ -11,7 +11,7 @@ namespace YAMEP_LEARN {
      */
     class Program {
         static void Main(string[] args) {
-            var expression = "1+2*3";
+            var expression = "5! + 4!";
 
             var lexer = new Lexer(new SourceScanner(expression));
 

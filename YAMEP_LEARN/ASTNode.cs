@@ -25,6 +25,22 @@
         public OperatorASTNode(Token token) : base(token) { }
     }
 
+    public abstract class UnaryOperatorASTNode : ASTNode {
+        public ASTNode Target { get; }
+        protected UnaryOperatorASTNode(Token token, ASTNode target)
+            : base(token) => Target = target;
+    }
+
+    public class NegationUnaryOperatorASTNode : UnaryOperatorASTNode {
+        public NegationUnaryOperatorASTNode(Token token, ASTNode target) : base(token, target) {
+        }
+    }
+
+    public class FactorialUnaryOperatorASTNode : UnaryOperatorASTNode {
+        public FactorialUnaryOperatorASTNode(Token token, ASTNode target) : base(token, target) {
+        }
+    }
+
     /// <summary>
     /// For all binary operators => LEFT OP RIGHT
     /// </summary>

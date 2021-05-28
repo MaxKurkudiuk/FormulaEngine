@@ -16,5 +16,15 @@
         static double Evaluate(MultiplicationBinaryOperatorASTNode node) => Evaluate(node.Left as dynamic) * Evaluate(node.Right as dynamic);
         static double Evaluate(DivisionBinaryOperatorASTNode node) => Evaluate(node.Left as dynamic) / Evaluate(node.Right as dynamic);
         static double Evaluate(NumberASTNode node) => node.Value;
+        static double Evaluate(NegationUnaryOperatorASTNode node) => -1 * Evaluate(node.Target as dynamic);
+        static double Evaluate(FactorialUnaryOperatorASTNode node) {
+            int fact(int x) => x == 1 ? 1 : x * fact(x - 1);
+            var value = (int)Evaluate(node.Target as dynamic);
+            if (value < 0)
+                throw new System.Exception("Factorial only supports Positive Integers");
+            value = value == 0 ? 1 : value;
+            //return value < 0 ? -fact(-value) : fact(value);
+            return fact(value);
+        }
     }
 }

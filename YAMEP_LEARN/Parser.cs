@@ -5,13 +5,27 @@ namespace YAMEP_LEARN {
 
     /// <summary>
     /// Implements the following Production Rules
-    /// EXPRESSION: TERM [('+'|'-')] TERM*
-    ///       TERM: FACTOR [('*'|'/')] FACTOR]*
-    ///     FACTOR: '(' EXPRESSION ')' | NUMBER
+    ///       EXPRESSION: TERM [('+'|'-')] TERM*
+    ///             TERM: FACTOR [('*'|'/')] FACTOR]*
+    ///           FACTOR: '-'? FACTORIAL_FACTOR
+    ///         EXPONENT:
+    /// FACTORIAL_FACTOR: PRIMARY '!'?
+    ///          PRIMARY: NUMBER | SUB_EXPRESSION
+    ///   SUB_EXPRESSION: '(' EXPRESSION ')'
+    /// 
+    /// // Parser Rules
+    /// expression
+    ///         : term
+    ///         | expression '+' term
+    ///         | expression '-' term
+    /// 
+    /// // Lexer Rules
+    /// INTEGER: [0-9]+
+    /// FP_NUM: [0-9]* .? INTEGER
     /// </summary>
     public class Parser {
 
-        static readonly Token.TokenType[] TERM_OPERATOR     = new Token.TokenType[] {Token.TokenType.Addition, Token.TokenType.Subtraction};
+        static readonly Token.TokenType[] TERM_OPERATOR     = new Token.TokenType[] {Token.TokenType.Addition, Token.TokenType.Minus};
         static readonly Token.TokenType[] FACTOR_OPERATOR   = new Token.TokenType[] {Token.TokenType.Multiplication, Token.TokenType.Division};
 
         Lexer _lexer;
@@ -67,22 +81,48 @@ namespace YAMEP_LEARN {
 
         /// <summary>
         /// Parses the FACTOR Production Rule
-        /// FACTOR: '(' EXPRESSION ')' | NUMBER
+        /// FACTOR: '-'? FACTORIAL_FACTOR
         /// </summary>
         /// <returns></returns>
         private ASTNode ParseFactor() {
-            ASTNode node;
+            ASTNode node = default;
 
-            if (IsNext(Token.TokenType.OpenParen)) {
-                Accept();   // consume the open paren
-                node = ParseExpression();
-                Expect(Token.TokenType.CloseParen);
-                Accept();   // consume the close paren
+            if (IsNext(Token.TokenType.Minus)) {
+                node = new NegationUnaryOperatorASTNode(Accept(), ParseFactorialFactor());
             } else {
-                node = ParseNumber();
+                node = ParseFactorialFactor();
             }
 
             return node;
+        }
+
+        /// <summary>
+        /// Preses the FACTORIAL_FACTOR Production Rule
+        /// FACTORIAL_FACTOR: PRIMARY '!'?
+        /// </summary>
+        private ASTNode ParseFactorialFactor() {
+            ASTNode node = ParsePrimary();
+
+            if (IsNext(Token.TokenType.Factorial)) {
+                node = new FactorialUnaryOperatorASTNode(Accept(), node);
+            }
+
+            return node;
+        }
+
+        /// <summary>
+        /// Preses the PRIMARY Production Rule
+        /// PRIMARY: NUMBER | SUB_EXPRESSION
+        /// </summary>
+        private ASTNode ParsePrimary() {
+            if (TryParseNumber(out var node)) 
+                return node;
+
+            if (TryParseSubExpression(out node)) 
+                return node;
+
+            // we go boom!
+            throw new Exception($"Invalid Expression expected either Number or ( at {_lexer.Position}");
         }
 
         /// <summary>
@@ -91,9 +131,27 @@ namespace YAMEP_LEARN {
         /// </summary>
         /// <param name="lexer"></param>
         /// <returns></returns>
-        private ASTNode ParseNumber() {
-            Expect(Token.TokenType.Number);
-            return new NumberASTNode(Accept());
+        private bool TryParseNumber(out ASTNode node) {
+            node = null;
+            if (IsNext(Token.TokenType.Number)) {
+                node = new NumberASTNode(Accept());
+            }
+            return node != null;
+        }
+
+        /// <summary>
+        /// SUB_EXPRESSION: '(' EXPRESSION ')'
+        /// </summary>
+        private bool TryParseSubExpression(out ASTNode node) {
+            node = null;
+            if (IsNext(Token.TokenType.OpenParen)) {
+                Accept();   // consume the open parren
+                node = ParseExpression();
+                Expect(Token.TokenType.CloseParen);
+                Accept();   // consume the close paren
+            }
+
+            return node != null;
         }
 
         private void Expect(Token.TokenType tokenType) {
@@ -110,7 +168,7 @@ namespace YAMEP_LEARN {
         private ASTNode CreateBinaryOperator(Token token, ASTNode left, ASTNode right) {
             switch (token.Type) {
                 case Token.TokenType.Addition: return new AdditionBinaryOperatorASTNode(token, left, right);
-                case Token.TokenType.Subtraction: return new SubtractionBinaryOperatorASTNode(token, left, right);
+                case Token.TokenType.Minus: return new SubtractionBinaryOperatorASTNode(token, left, right);
                 case Token.TokenType.Multiplication: return new MultiplicationBinaryOperatorASTNode(token, left, right);
                 case Token.TokenType.Division: return new DivisionBinaryOperatorASTNode(token, left, right);
                 default:

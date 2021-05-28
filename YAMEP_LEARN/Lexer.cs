@@ -16,17 +16,19 @@ namespace YAMEP_LEARN {
         const char DECIMAL_SEPERATOR    = '.';
         const char OPEN_PAREN           = '(';
         const char CLOSE_PAREN          = ')';
+        const char FACTORIAL            = '!';
 
         static readonly char[] E_NOTAION            = new char[] { 'e', 'E' };
         static readonly char[] SIGN_OPEERATORS      = new char[] { PLUS, MINUS };
 
         readonly static Dictionary<char, Func<int, char, Token>> SimpleTokenMap = new Dictionary<char, Func<int, char, Token>> {
             { PLUS, (p, v) => new Token(Token.TokenType.Addition, p, v.ToString())},
-            { MINUS, (p, v) => new Token(Token.TokenType.Subtraction, p, v.ToString())},
+            { MINUS, (p, v) => new Token(Token.TokenType.Minus, p, v.ToString())},
             { MULTIPLICATION, (p, v) => new Token(Token.TokenType.Multiplication, p, v.ToString())},
             { DIVISION, (p, v) => new Token(Token.TokenType.Division, p, v.ToString())},
             { OPEN_PAREN, (p, v) => new Token(Token.TokenType.OpenParen, p, v.ToString())},
             { CLOSE_PAREN, (p, v) => new Token(Token.TokenType.CloseParen, p, v.ToString())},
+            { FACTORIAL, (p, v) => new Token(Token.TokenType.Factorial, p, v.ToString()) }
         };
 
         readonly SourceScanner _scanner;

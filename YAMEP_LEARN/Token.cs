@@ -2,30 +2,31 @@
     public class Token {
 
         public enum TokenType {
-            EOE,            // End of Expression - Sentinel
-            Number,         // [0-9]+
+            EOE,            // => End of Expression - Sentinel
+            Number,         // => [0-9]+
             Addition,       // => +
-            Subtraction,    // => -
+            Minus,          // => -
             Multiplication, // => *
             Division,       // => /
             OpenParen,      // => (
             CloseParen,     // => )
+            Factorial       // => !
         }
 
         /// <summary>
         /// The type of token <see cref="TokenType"/>
         /// </summary>
-        public TokenType Type { get; }
+        public TokenType Type { get; private set; }
 
         /// <summary>
         /// Position of where the token is found in the source expression
         /// </summary>
-        public int Position { get; }
+        public int Position { get; private set; }
 
         /// <summary>
         /// Textual value of the token
         /// </summary>
-        public string Value { get; }
+        public string Value { get; private set; }
 
         /// <summary>
         /// Constructor for a Token with the specified position and value

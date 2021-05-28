@@ -11,6 +11,15 @@ namespace YAMEP_LEARN.Tests {
     public class ExpressionEngineTests : UnitTestBase{
 
         [TestMethod()]
+        public void Negate_Test_001() {
+            var expression = "- 3 * (1 + 2)"; //-9
+
+            var evalEngine = new ExpressionEngine();
+
+            Assert.AreEqual(-9, evalEngine.Evaluate(expression));
+        }
+
+        [TestMethod()]
         public void SunExpression_Test_001() {
             var expression = "(1 + 2) * 3"; //9
 
