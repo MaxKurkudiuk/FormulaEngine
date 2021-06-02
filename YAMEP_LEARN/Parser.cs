@@ -5,12 +5,12 @@ namespace YAMEP_LEARN {
 
     /// <summary>
     /// Implements the following Production Rules
-    ///       EXPRESSION: TERM [('+'|'-')] TERM*
-    ///             TERM: FACTOR [('*'|'/')] FACTOR]*
+    ///       EXPRESSION: TERM [('+'|'-') TERM]*
+    ///             TERM: FACTOR [('*'|'/') FACTOR]*
     ///           FACTOR: '-'? EXPONENT
     ///         EXPONENT: FACTORIAL_FACTOR [ '^' EXPONENT ]*
     /// FACTORIAL_FACTOR: PRIMARY '!'?
-    ///          PRIMARY: NUMBER | SUB_EXPRESSION
+    ///          PRIMARY: IDENTIFIER | NUMBER | SUB_EXPRESSION
     ///   SUB_EXPRESSION: '(' EXPRESSION ')'
     /// 
     /// // Parser Rules
@@ -28,55 +28,57 @@ namespace YAMEP_LEARN {
         static readonly Token.TokenType[] TERM_OPERATOR     = new Token.TokenType[] {Token.TokenType.Addition, Token.TokenType.Minus};
         static readonly Token.TokenType[] FACTOR_OPERATOR   = new Token.TokenType[] {Token.TokenType.Multiplication, Token.TokenType.Division};
 
-        Lexer _lexer;
+        readonly Lexer _lexer;
+        readonly SymbolTable _symbolTable;
 
-        public Parser(Lexer lexer) => _lexer = lexer;
+        public Parser(Lexer lexer) : this(lexer, new SymbolTable()) { }
+
+        public Parser(Lexer lexer, SymbolTable symbolTable) {
+            _lexer = lexer;
+            _symbolTable = symbolTable;
+        }
 
         /// <summary>
         /// Parses the suplied expression and returns the root node of the AST
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public ASTNode Parse() => ParseExpression();
+        public ASTNode Parse() => TryParseExpression(out ASTNode node) ? node : null;
 
         /// <summary>
         /// Parses the EXPRESSION Production Rule
-        /// EXPRESSION: TERM [('+'|'-')] TERM*
+        /// EXPRESSION: TERM [('+'|'-') TERM]*
         /// </summary>
         /// <returns></returns>
-        private ASTNode ParseExpression() {
-            var left = ParseTerm();
-
-            while (IsNext(TERM_OPERATOR)) {
-                var op = Accept();  // accept the operator
-                var right = ParseTerm();
-                left = CreateBinaryOperator(op, left, right);
+        private bool TryParseExpression(out ASTNode node) {
+            if (TryParseTerm(out node)) {
+                while (IsNext(TERM_OPERATOR)) {
+                    var op = Accept();  // accept the operator
+                    if (TryParseTerm(out ASTNode rhs))        // rhs = rightHendSide
+                        node = CreateBinaryOperator(op, node, rhs);
+                    else
+                        throw new Exception($"Exception Parsing the Expression Rule at position {_lexer.Position}");
+                }
             }
-
-            return left;
+            return node != null;
         }
 
         /// <summary>
-        /// Preses the TERM Production Rule
-        /// TERM: FACTOR[('*'|'/')] FACTOR]*
-        /// </summary>
-        /// <returns></returns>
-        private ASTNode ParseTerm() {
-
-            //1 * 2 * 3
-            //
-            //    *
-            //  1   *
-            //    2   3
-            var left = ParseFactor();
-
-            while (IsNext(FACTOR_OPERATOR)) {
-                var op = Accept();  // accept the operator
-                var right = ParseFactor();
-                left = CreateBinaryOperator(op, left, right);
+        /// Preses the TERM Production Rule                 1 * 2 * 3
+        /// TERM: FACTOR [('*'|'/')] FACTOR]*                    *
+        /// </summary>                                        1   *
+        /// <returns></returns>                                 2   3
+        private bool TryParseTerm(out ASTNode node) {
+            if (TryParseFactor(out node)) {
+                while (IsNext(FACTOR_OPERATOR)) {
+                    var op = Accept();  // accept the operator
+                    if (TryParseFactor(out ASTNode rhs))      // rhs = rightHendSide
+                        node = CreateBinaryOperator(op, node, rhs);
+                    else
+                        throw new Exception($"Exception Parsing the Term Rule at position {_lexer.Position}");
+                }
             }
-
-            return left;
+            return node != null;
         }
 
         /// <summary>
@@ -84,74 +86,93 @@ namespace YAMEP_LEARN {
         /// FACTOR: '-'? EXPONENT
         /// </summary>
         /// <returns></returns>
-        private ASTNode ParseFactor() {
-            ASTNode node = default;
-
+        private bool TryParseFactor(out ASTNode node) {
             if (IsNext(Token.TokenType.Minus)) {
-                node = new NegationUnaryOperatorASTNode(Accept(), ParseExponent());
+                var op = Accept();  // accept the operator
+                if (TryParseExponent(out node))
+                    node = new NegationUnaryOperatorASTNode(op, node);
+                else
+                    throw new Exception($"Exception Parsing the Factor Rule at position {_lexer.Position}");
             } else {
-                node = ParseExponent();
+                TryParseExponent(out node);
             }
-
-            return node;
+            return node != null;
         }
 
         /// <summary>
         /// Parses the EXPONENT Production Rule
         /// EXPONENT: FACTORIAL_FACTOR [ '^' EXPONENT ]*
+        /// Example: 2^3^2                                                   ^
+        /// lift_node(2)                                                   2   ^
+        /// right_node(exponent_node(left(3), right(2))                      3   2
         /// </summary>
-        private ASTNode ParseExponent() {
-            ASTNode node = ParseFactorialFactor();
+        private bool TryParseExponent(out ASTNode node) {
+            //ASTNode node = TryParseFactorialFactor(out ASTNode node);
 
-            if (IsNext(Token.TokenType.Exponent)) {
-                var op = Accept(); // accept the operator
-                // example 2^3^2
-                // lift_node(2)
-                // right_node(exponent_node(left(3), right(2))
-                //      ^
-                //    2   ^
-                //      3   2
-                node = new ExponentBinaryOperatorASTNode(op, node, ParseExponent());
-            }
+            //if (IsNext(Token.TokenType.Exponent)) {
+            //    var op = Accept(); // accept the operator
+            //    node = new ExponentBinaryOperatorASTNode(op, node, ParseExponent());
+            //}
 
-            return node;
+            //return node;
+            if (TryParseFactorialFactor(out node))
+                if (IsNext(Token.TokenType.Exponent)) {
+                    var op = Accept(); // accept the operator
+                    if (TryParseExponent(out ASTNode rhs))    // rhs = rightHendSide
+                        node = new ExponentBinaryOperatorASTNode(op, node, rhs);
+                }
+
+            return node != null;
         }
 
         /// <summary>
         /// Preses the FACTORIAL_FACTOR Production Rule
         /// FACTORIAL_FACTOR: PRIMARY '!'?
         /// </summary>
-        private ASTNode ParseFactorialFactor() {
-            ASTNode node = ParsePrimary();
+        private bool TryParseFactorialFactor(out ASTNode node) {
+            if (TryParsePrimary(out node))
+                if (IsNext(Token.TokenType.Factorial))
+                    node = new FactorialUnaryOperatorASTNode(Accept(), node);
 
-            if (IsNext(Token.TokenType.Factorial)) {
-                node = new FactorialUnaryOperatorASTNode(Accept(), node);
-            }
-
-            return node;
+            return node != null;
         }
 
         /// <summary>
         /// Preses the PRIMARY Production Rule
-        /// PRIMARY: NUMBER | SUB_EXPRESSION
+        /// PRIMARY: IDENTIFIER | NUMBER | SUB_EXPRESSION
         /// </summary>
-        private ASTNode ParsePrimary() {
-            if (TryParseNumber(out var node)) 
-                return node;
+        private bool TryParsePrimary(out ASTNode node) {
+            if (!TryParseIdentifier(out node))
+                if (!TryParseNumber(out node))
+                    if (!TryParseSubExpression(out node))
+                        throw new Exception($"Invalid Expression expected either Number or ( at {_lexer.Position}");
+            return true;
+        }
 
-            if (TryParseSubExpression(out node)) 
-                return node;
-
-            // we go boom!
-            throw new Exception($"Invalid Expression expected either Number or ( at {_lexer.Position}");
+        /// <summary>
+        /// Preses the IDENTIFIER Production Rule
+        /// IDENTIFIER: _?[a-zA-Z]+[a-zA-Z0-9_]*
+        /// </summary>
+        private bool TryParseIdentifier(out ASTNode node) {
+            node = null;
+            if (IsNext(Token.TokenType.Identifier)) {
+                var token = Accept();
+                var stEntry = _symbolTable.Get(token.Value);
+                if (stEntry == null)
+                    throw new Exception($"Undefined Identifier {token.Value} at position {token.Position}");
+                if (stEntry.Type == SymbolTableEntry.EntryType.Variable)
+                    node = new VariableIdentifierASTNode(token, token.Value);
+                else {
+                    // TODO: Handle Functions next
+                }
+            }
+            return node != null;
         }
 
         /// <summary>
         /// Preses the NUMBER Production Rule
         /// NUMBER: [0-9]+
         /// </summary>
-        /// <param name="lexer"></param>
-        /// <returns></returns>
         private bool TryParseNumber(out ASTNode node) {
             node = null;
             if (IsNext(Token.TokenType.Number)) {
@@ -167,11 +188,11 @@ namespace YAMEP_LEARN {
             node = null;
             if (IsNext(Token.TokenType.OpenParen)) {
                 Accept();   // consume the open parren
-                node = ParseExpression();
-                Expect(Token.TokenType.CloseParen);
-                Accept();   // consume the close paren
+                if (TryParseExpression(out node)) {
+                    Expect(Token.TokenType.CloseParen);
+                    Accept();   // consume the close paren
+                }
             }
-
             return node != null;
         }
 

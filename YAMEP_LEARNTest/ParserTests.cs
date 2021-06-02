@@ -59,5 +59,25 @@ namespace YAMEP_LEARN.Tests {
             var expression = "1 +";
             _ = new Parser(new Lexer(new SourceScanner(expression))).Parse();
         }
+
+        [TestMethod()]
+        public void ParseTest_004() {
+            var expression = "2 * x * y";
+            var variables = new { x = 5, y = 10 };
+            var ee = new ExpressionEngine();
+            var result = ee.Evaluate(expression, variables);
+
+            Assert.AreEqual(100, result);
+        }
+
+        [TestMethod()]
+        public void ParseTest_005() {
+            var expression = "x + y";
+            var variables = new { x = 5, y = 10 };
+            var ee = new ExpressionEngine();
+            var result = ee.Evaluate(expression, variables);
+
+            Assert.AreEqual(15, result);
+        }
     }
 }

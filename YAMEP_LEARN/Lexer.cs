@@ -64,6 +64,9 @@ namespace YAMEP_LEARN {
             if (TryTokenizeNumber(out token))
                 return token;
 
+            if (TryTokenizeIdentifier(out token))
+                return token;
+
             // Not good to be here
             throw new Exception($"Unexpected character {_scanner.Peek()} found at Position {_scanner.Position}");
         }
@@ -137,12 +140,38 @@ namespace YAMEP_LEARN {
 
             return token != null;
         }
-
         private string ReadDigits() { 
             var sb = new StringBuilder();
             while (IsNext(char.IsDigit))
                 sb.Append(Accept());
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Examples _?[a-zA-Z]+[a-zA-Z0-9_]*
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        private bool TryTokenizeIdentifier(out Token token) {
+            token = null;
+            var sb = new StringBuilder();
+            var position = Position;        // where did we start finding the character
+
+            if (IsNext('_')) {
+                sb.Append(Accept());
+                Expect(char.IsLetter);
+            }
+
+            if (IsNext(char.IsLetter)) {
+                sb.Append(Accept());
+                while (IsNext(char.IsLetterOrDigit) || IsNext('_'))
+                    sb.Append(Accept());
+            }
+
+            if (sb.Length > 0)
+                token = new Token(Token.TokenType.Identifier, position, sb.ToString());
+
+            return token != null;
         }
 
         private char Accept() => _scanner.Read().Value;

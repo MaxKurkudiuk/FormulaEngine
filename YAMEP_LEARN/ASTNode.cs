@@ -7,6 +7,16 @@
         public ASTNode(Token token) => Token = token;
     }
 
+    public abstract class IdentifierASTNode : ASTNode {
+        public string Name { get; }
+        protected IdentifierASTNode(Token token, string name) : base(token) => this.Name = name;
+    }
+
+    public class VariableIdentifierASTNode : IdentifierASTNode {
+        public VariableIdentifierASTNode(Token token, string name) : base(token, name) {
+        }
+    }
+
     /// <summary>
     /// Represents a basic number [0-9]+
     /// </summary>

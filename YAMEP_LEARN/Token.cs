@@ -11,7 +11,8 @@
             OpenParen,      // => (
             CloseParen,     // => )
             Factorial,      // => !
-            Exponent        // => ^
+            Exponent,       // => ^
+            Identifier,     // => _?[a-zA-Z]+[a-zA-Z0-9_]+
         }
 
         /// <summary>
