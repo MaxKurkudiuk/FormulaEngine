@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExpressionEngineTests.cs" />
+    <Compile Include="ImplicitMultiplicationTests.cs" />
     <Compile Include="SymbolTableTests.cs" />
     <Compile Include="FactorialTests.cs" />
     <Compile Include="LexerTests.cs" />

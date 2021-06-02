@@ -3,11 +3,17 @@ using System.Linq;
 
 namespace YAMEP_LEARN {
 
+    // Implicit multiplication: 2x x(1+2)
+    // => 2x^2 => 2(x ^ 2)
+    // 2 * -x = 2-x     FAIL!
+    // -2x! <= (-1)(2*(x!))
+    // 2x!x(1+2)^2
     /// <summary>
     /// Implements the following Production Rules
     ///       EXPRESSION: TERM [('+'|'-') TERM]*
     ///             TERM: FACTOR [('*'|'/') FACTOR]*
-    ///           FACTOR: '-'? EXPONENT
+    ///           FACTOR: '-'? IMPLICIT_MUL
+    ///     IMPLICIT_MUL: EXPONENT IMPLICIT_MUL*
     ///         EXPONENT: FACTORIAL_FACTOR [ '^' EXPONENT ]*
     /// FACTORIAL_FACTOR: PRIMARY '!'?
     ///          PRIMARY: IDENTIFIER | NUMBER | SUB_EXPRESSION
@@ -83,18 +89,32 @@ namespace YAMEP_LEARN {
 
         /// <summary>
         /// Parses the FACTOR Production Rule
-        /// FACTOR: '-'? EXPONENT
+        /// FACTOR: '-'? IMPLICIT_MUL
         /// </summary>
         /// <returns></returns>
         private bool TryParseFactor(out ASTNode node) {
             if (IsNext(Token.TokenType.Minus)) {
                 var op = Accept();  // accept the operator
-                if (TryParseExponent(out node))
+                if (TryParseImplicitMultiplication(out node))
                     node = new NegationUnaryOperatorASTNode(op, node);
                 else
                     throw new Exception($"Exception Parsing the Factor Rule at position {_lexer.Position}");
             } else {
-                TryParseExponent(out node);
+                TryParseImplicitMultiplication(out node);
+            }
+            return node != null;
+        }
+
+        /// <summary>
+        /// Parses the IMPLICIT_MULTIPLICATION Production Rule
+        /// IMPLICIT_MUL: EXPONENT IMPLICIT_MUL*
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        private bool TryParseImplicitMultiplication(out ASTNode node) {
+            if (TryParseExponent(out node)) {
+                if (TryParseImplicitMultiplication(out ASTNode rhs))
+                    node = CreateBinaryOperator(new Token(Token.TokenType.Multiplication, -1, null), node, rhs);
             }
             return node != null;
         }
@@ -107,21 +127,13 @@ namespace YAMEP_LEARN {
         /// right_node(exponent_node(left(3), right(2))                      3   2
         /// </summary>
         private bool TryParseExponent(out ASTNode node) {
-            //ASTNode node = TryParseFactorialFactor(out ASTNode node);
-
-            //if (IsNext(Token.TokenType.Exponent)) {
-            //    var op = Accept(); // accept the operator
-            //    node = new ExponentBinaryOperatorASTNode(op, node, ParseExponent());
-            //}
-
-            //return node;
-            if (TryParseFactorialFactor(out node))
+            if (TryParseFactorialFactor(out node)) {
                 if (IsNext(Token.TokenType.Exponent)) {
                     var op = Accept(); // accept the operator
                     if (TryParseExponent(out ASTNode rhs))    // rhs = rightHendSide
                         node = new ExponentBinaryOperatorASTNode(op, node, rhs);
                 }
-
+            }
             return node != null;
         }
 
@@ -145,7 +157,7 @@ namespace YAMEP_LEARN {
             if (!TryParseIdentifier(out node))
                 if (!TryParseNumber(out node))
                     if (!TryParseSubExpression(out node))
-                        throw new Exception($"Invalid Expression expected either Number or ( at {_lexer.Position}");
+                        return false; //throw new Exception($"Invalid Expression expected either Number or ( at {_lexer.Position}");
             return true;
         }
 
