@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace YAMEP_LEARN {
@@ -17,6 +18,9 @@ namespace YAMEP_LEARN {
     ///         EXPONENT: FACTORIAL_FACTOR [ '^' EXPONENT ]*
     /// FACTORIAL_FACTOR: PRIMARY '!'?
     ///          PRIMARY: IDENTIFIER | NUMBER | SUB_EXPRESSION
+    ///      IDENTOIFIER: VARIABLE | FUNCTION
+    ///         FUNCTION: FUNCTION_NAME '(' FUNC_ARGS ')'
+    ///        FUNC_ARGS: EXPRESSION [, EXPRESSION]*
     ///   SUB_EXPRESSION: '(' EXPRESSION ')'
     /// 
     /// // Parser Rules
@@ -169,22 +173,68 @@ namespace YAMEP_LEARN {
 
         /// <summary>
         /// Preses the IDENTIFIER Production Rule
-        /// IDENTIFIER: _?[a-zA-Z]+[a-zA-Z0-9_]*
+        /// IDENTIFIER: VARIABLE | FUNCTION                     (_?[a-zA-Z]+[a-zA-Z0-9_]*)
         /// </summary>
         private bool TryParseIdentifier(out ASTNode node) {
+            if (!TryParseVariable(out node))
+                if (!TryParseFunction(out node))
+                    return false;
+            return true;
+        }
+
+        private bool TryParseVariable(out ASTNode node) {
             node = null;
             if (IsNext(Token.TokenType.Identifier)) {
-                var token = Accept();
+                var token = _lexer.Peek();
                 var stEntry = _symbolTable.Get(token.Value);
                 if (stEntry == null)
                     throw new Exception($"Undefined Identifier {token.Value} at position {token.Position}");
+
                 if (stEntry.Type == SymbolTableEntry.EntryType.Variable)
-                    node = new VariableIdentifierASTNode(token, token.Value);
-                else {
-                    // TODO: Handle Functions next
+                    node = new VariableIdentifierASTNode(Accept());
+            }
+            return node != null;
+        }
+
+        // FUNCTION: FUNCTION_NAME '(' FUNC_ARGS ')'
+        private bool TryParseFunction(out ASTNode node) {
+            node = null;
+            if (IsNext(Token.TokenType.Identifier)) {
+                var token = _lexer.Peek();
+                var stEntry = _symbolTable.Get(token.Value);
+                if (stEntry == null)
+                    throw new Exception($"Undefined Identifier {token.Value} at position {token.Position}");
+
+                if (stEntry.Type == SymbolTableEntry.EntryType.Fucntion) {
+                    node = new FunctionASTNode(Accept());
+
+                    Expect(Token.TokenType.OpenParen);
+                    Accept();
+                    
+                    if (TryParseFuncArgs(out var arguments))
+                        (node as FunctionASTNode).ArgumentsNodes.AddRange(arguments);
+                    
+                    Expect(Token.TokenType.CloseParen);
+                    Accept();
                 }
             }
             return node != null;
+        }
+
+        // FUNC_ARGS: EXPRESSION [, EXPRESSION]*
+        private bool TryParseFuncArgs(out List<ASTNode> nodes) {
+            nodes = new List<ASTNode>();
+            if (TryParseExpression(out var node)) {
+                nodes.Add(node);
+                while (IsNext(Token.TokenType.ArgSeperator)) {
+                    Accept();   // eat the comma
+                    if (TryParseExpression(out node))
+                        nodes.Add(node);
+                    else
+                        throw new Exception($"Exception Parsing Function Argumants at Position {_lexer.Position}");
+                }
+            }
+            return nodes.Any();
         }
 
         /// <summary>

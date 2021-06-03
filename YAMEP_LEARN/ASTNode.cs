@@ -1,4 +1,6 @@
-﻿namespace YAMEP_LEARN {
+﻿using System.Collections.Generic;
+
+namespace YAMEP_LEARN {
     /// <summary>
     /// base class for all AST Nodes in the tree
     /// </summary>
@@ -9,17 +11,18 @@
 
     public abstract class IdentifierASTNode : ASTNode {
         public string Name { get; }
-        protected IdentifierASTNode(Token token, string name) : base(token) => this.Name = name;
+        protected IdentifierASTNode(Token token) : base(token) => this.Name = token.Value;
     }
 
     public class VariableIdentifierASTNode : IdentifierASTNode {
-        public VariableIdentifierASTNode(Token token, string name) : base(token, name) {
-        }
+        public VariableIdentifierASTNode(Token token)
+            : base(token) { }
     }
 
-    public class FunctionIdentifierASTNode : IdentifierASTNode {
-        public FunctionIdentifierASTNode(Token token, string name) : base(token, name) {
-        }
+    public class FunctionASTNode : IdentifierASTNode {
+        public List<ASTNode> ArgumentsNodes { get; }
+        public FunctionASTNode(Token token) 
+            : base(token) => ArgumentsNodes = new List<ASTNode>();
     }
 
     /// <summary>

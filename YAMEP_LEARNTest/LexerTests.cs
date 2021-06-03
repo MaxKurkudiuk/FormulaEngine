@@ -67,6 +67,19 @@ namespace YAMEP_LEARN.Tests {
         }
 
         [TestMethod()]
+        public void Test_FP_008() {
+            var expected = "Sin(5)";
+            var lexer = new Lexer(new SourceScanner(expected));
+
+            var token = lexer.ReadNext();
+            Assert.AreEqual("Sin", token.Value);
+            Assert.AreEqual(Token.TokenType.Identifier, token.Type);
+            Assert.AreEqual("(", lexer.ReadNext().Value);
+            Assert.AreEqual("5", lexer.ReadNext().Value);
+            Assert.AreEqual(")", lexer.ReadNext().Value);
+        }
+
+        [TestMethod()]
         public void ReadNextTest_ExpressionWithBrackets() {
             var lexer = new Lexer(new SourceScanner("(1+2)"));
 

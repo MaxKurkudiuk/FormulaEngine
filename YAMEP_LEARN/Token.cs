@@ -13,6 +13,7 @@
             Factorial,      // => !
             Exponent,       // => ^
             Identifier,     // => _?[a-zA-Z]+[a-zA-Z0-9_]+
+            ArgSeperator    // => ,
         }
 
         /// <summary>

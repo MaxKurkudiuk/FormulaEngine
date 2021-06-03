@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Linq;
 
 namespace YAMEP_LEARN {
     public class ExpressionEngine {
         private SymbolTable _symbolTable;
         public ExpressionEngine() => _symbolTable = new SymbolTable();
+
+        public void AddFunctions<T>() => _symbolTable.AddFunction<T>();
 
         /// <summary>
         /// Evaluates an expression and returns the final result
@@ -25,8 +28,10 @@ namespace YAMEP_LEARN {
         /// <returns>the result</returns>
         public double Evaluate(string expression) {
             var astRoot = new Parser(new Lexer(new SourceScanner(expression)), _symbolTable).Parse();
-            return Evaluate(astRoot as dynamic);
+            return Evaluate(astRoot);
         }
+
+        public double Evaluate(ASTNode root) => Evaluate(root as dynamic);
 
         protected double Evaluate(AdditionBinaryOperatorASTNode node) => Evaluate(node.Left as dynamic) + Evaluate(node.Right as dynamic);
         protected double Evaluate(SubtractionBinaryOperatorASTNode node) => Evaluate(node.Left as dynamic) - Evaluate(node.Right as dynamic);
@@ -53,6 +58,15 @@ namespace YAMEP_LEARN {
                 throw new Exception($"Error Evaluating Exception. Variable {node.Name}");
             }
             return (entry as VariableSymbolTableEntry).Value;
+        }
+
+        protected double Evaluate(FunctionASTNode node) {
+            var entry = _symbolTable.Get(node.Name);
+            if (entry == null || entry.Type != SymbolTableEntry.EntryType.Fucntion) {
+                throw new Exception($"Error Evaluating Exception. Function {node.Name}");
+            }
+            object[] parameters = node.ArgumentsNodes.Select(arg => Evaluate(arg as dynamic)).ToArray();
+            return (double)(entry as FunctionSymbolTableEntry).MethodInfo.Invoke(null, parameters);
         }
     }
 }

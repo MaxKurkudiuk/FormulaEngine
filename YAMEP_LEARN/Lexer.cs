@@ -18,10 +18,10 @@ namespace YAMEP_LEARN {
         const char CLOSE_PAREN          = ')';
         const char FACTORIAL            = '!';
         const char EXPONENT             = '^';
+        const char ARG_SEPERATOR        = ',';
 
         static readonly char[] E_NOTAION            = new char[] { 'e', 'E' };
         static readonly char[] SIGN_OPEERATORS      = new char[] { PLUS, MINUS };
-        static readonly string[] FUNCTIONS            = new string[] { "sin", "cos", "tg", "ctg" };
 
         readonly static Dictionary<char, Func<int, char, Token>> SimpleTokenMap = new Dictionary<char, Func<int, char, Token>> {
             { PLUS, (p, v) => new Token(Token.TokenType.Addition, p, v.ToString())},
@@ -31,7 +31,8 @@ namespace YAMEP_LEARN {
             { OPEN_PAREN, (p, v) => new Token(Token.TokenType.OpenParen, p, v.ToString())},
             { CLOSE_PAREN, (p, v) => new Token(Token.TokenType.CloseParen, p, v.ToString())},
             { FACTORIAL, (p, v) => new Token(Token.TokenType.Factorial, p, v.ToString()) },
-            { EXPONENT, (p, v) => new Token(Token.TokenType.Exponent, p, v.ToString()) }
+            { EXPONENT, (p, v) => new Token(Token.TokenType.Exponent, p, v.ToString()) },
+            { ARG_SEPERATOR, (p, v) => new Token(Token.TokenType.ArgSeperator, p, v.ToString()) },
         };
 
         readonly SourceScanner _scanner;
@@ -170,10 +171,7 @@ namespace YAMEP_LEARN {
             }
 
             if (sb.Length > 0) {
-                //if (FUNCTIONS.Contains(sb.ToString().ToLowerInvariant()))
-                //    token = new Token(Token.TokenType.Function, position, sb.ToString());
-                //else
-                    token = new Token(Token.TokenType.Identifier, position, sb.ToString());
+                token = new Token(Token.TokenType.Identifier, position, sb.ToString());
             }
 
             return token != null;
