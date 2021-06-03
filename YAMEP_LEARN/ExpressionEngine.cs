@@ -62,11 +62,16 @@ namespace YAMEP_LEARN {
 
         protected double Evaluate(FunctionASTNode node) {
             var entry = _symbolTable.Get(node.Name);
-            if (entry == null || entry.Type != SymbolTableEntry.EntryType.Fucntion) {
+            if (entry == null || entry.Type != SymbolTableEntry.EntryType.Fucntion)
                 throw new Exception($"Error Evaluating Exception. Function {node.Name}");
-            }
+
+            var funcEntry = (entry as FunctionSymbolTableEntry);
+            if (funcEntry.MethodInfo.GetParameters().Length != node.ArgumentsNodes.Count)
+                throw new Exception($"Wrong count of parameters in Function {funcEntry.IdentiferName}. " +
+                    $"Must be {funcEntry.MethodInfo.GetParameters().Length} arguments but not {node.ArgumentsNodes.Count}");
+
             object[] parameters = node.ArgumentsNodes.Select(arg => Evaluate(arg as dynamic)).ToArray();
-            return (double)(entry as FunctionSymbolTableEntry).MethodInfo.Invoke(null, parameters);
+            return (double)funcEntry.MethodInfo.Invoke(null, parameters);
         }
     }
 }

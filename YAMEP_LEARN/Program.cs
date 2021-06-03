@@ -34,7 +34,7 @@ namespace YAMEP_LEARN {
             expEngine.AddFunctions<MyFunctions>();
             var result = expEngine.Evaluate("Sin(5)");
             Console.WriteLine(result);
-            result = expEngine.Evaluate("Sin2(5, 5)");
+            result = expEngine.Evaluate("Sin(5, 5)");
             Console.WriteLine(result);
             return;
 
@@ -69,8 +69,6 @@ namespace YAMEP_LEARN {
 
     public class MyFunctions {
         public static double Sin(double a) => Math.Sin(a);
-
-        public static double Sin2(double a, double b) => Math.Sin(a + b);
         public static double Cos(double a) => Math.Cos(a);
         public static double Tg(double a) => Math.Tan(a);
         public static double Ctg(double a) => 1.0 / Math.Tan(a);
