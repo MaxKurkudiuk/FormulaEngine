@@ -49,7 +49,13 @@ namespace YAMEP_LEARN {
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public ASTNode Parse() => TryParseExpression(out ASTNode node) ? node : null;
+        public ASTNode Parse() {
+            if (TryParseExpression(out ASTNode node)) {
+                Expect(Token.TokenType.EOE);
+                return node;
+            } else
+                throw new Exception($"Failed to Parse Expression Tree");
+        }
 
         /// <summary>
         /// Parses the EXPRESSION Production Rule
@@ -210,7 +216,7 @@ namespace YAMEP_LEARN {
 
         private void Expect(Token.TokenType tokenType) {
             if (!IsNext(tokenType))
-                throw new Exception($"Unexpected token {_lexer.Peek()} at position {_lexer.Position}");
+                throw new Exception($"Unexpected token {_lexer.Peek()?.Value} at position {_lexer.Position}");
         }
 
         private bool IsNext(params Token.TokenType[] possibleTokens)

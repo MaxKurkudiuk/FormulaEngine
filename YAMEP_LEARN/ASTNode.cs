@@ -17,6 +17,11 @@
         }
     }
 
+    public class FunctionIdentifierASTNode : IdentifierASTNode {
+        public FunctionIdentifierASTNode(Token token, string name) : base(token, name) {
+        }
+    }
+
     /// <summary>
     /// Represents a basic number [0-9]+
     /// </summary>

@@ -21,6 +21,7 @@ namespace YAMEP_LEARN {
 
         static readonly char[] E_NOTAION            = new char[] { 'e', 'E' };
         static readonly char[] SIGN_OPEERATORS      = new char[] { PLUS, MINUS };
+        static readonly string[] FUNCTIONS            = new string[] { "sin", "cos", "tg", "ctg" };
 
         readonly static Dictionary<char, Func<int, char, Token>> SimpleTokenMap = new Dictionary<char, Func<int, char, Token>> {
             { PLUS, (p, v) => new Token(Token.TokenType.Addition, p, v.ToString())},
@@ -168,8 +169,12 @@ namespace YAMEP_LEARN {
                     sb.Append(Accept());
             }
 
-            if (sb.Length > 0)
-                token = new Token(Token.TokenType.Identifier, position, sb.ToString());
+            if (sb.Length > 0) {
+                //if (FUNCTIONS.Contains(sb.ToString().ToLowerInvariant()))
+                //    token = new Token(Token.TokenType.Function, position, sb.ToString());
+                //else
+                    token = new Token(Token.TokenType.Identifier, position, sb.ToString());
+            }
 
             return token != null;
         }

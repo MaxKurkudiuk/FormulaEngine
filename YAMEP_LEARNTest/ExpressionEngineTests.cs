@@ -11,6 +11,22 @@ namespace YAMEP_LEARN.Tests {
     public class ExpressionEngineTests : UnitTestBase{
 
         [TestMethod()]
+        [ExpectedException(typeof(Exception))]
+        public void Not_A_Valid_Expression_001() {
+            var expression = "(1 + 2))";
+            var evalEngine = new ExpressionEngine();
+            Assert.AreEqual(3, evalEngine.Evaluate(expression));
+        }
+
+        [TestMethod()]
+        [ExpectedException(typeof(Exception))]
+        public void Not_A_Valid_Expression_002() {
+            var expression = "((1 + 2)";
+            var evalEngine = new ExpressionEngine();
+            Assert.AreEqual(3, evalEngine.Evaluate(expression));
+        }
+
+        [TestMethod()]
         public void Negate_Test_001() {
             var expression = "- 3 * (1 + 2)"; //-9
 

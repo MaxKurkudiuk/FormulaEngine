@@ -7,6 +7,16 @@ namespace YAMEP_LEARN.Tests {
     public class ImplicitMultiplication {
 
         [TestMethod()]
+        public void Test_000() {
+            var expression = "2 x";
+            var variables = new { x = 5 };
+            var ee = new ExpressionEngine();
+            var result = ee.Evaluate(expression, variables);
+
+            Assert.AreEqual(10, result);
+        }
+
+        [TestMethod()]
         public void Test_001() {
             var expression = "2x";
             var variables = new { x = 5};
