@@ -39,14 +39,14 @@ namespace YAMEP_LEARN {
     }
 
     public class SymbolTable {
-        readonly Dictionary<string, SymbolTableEntry> Entries = new Dictionary<string, SymbolTableEntry>();
+        readonly Dictionary<string, List<SymbolTableEntry>> Entries = new Dictionary<string, List<SymbolTableEntry>>();
 
         public void AddOrUpdate(object variables) {
             var kvp = variables.GetType()
                 .GetProperties()
                 .Select<PropertyInfo, (string, double)>(x => (x.Name, Convert.ToDouble(x.GetValue(variables))));
 
-            foreach(var (id, val) in kvp)
+            foreach (var (id, val) in kvp)
                 AddOrUpdate(id, val);
         }
 
@@ -54,16 +54,16 @@ namespace YAMEP_LEARN {
             var key = identifier.ToLower();
             if (!Entries.ContainsKey(key)) {
                 // create one
-                Entries.Add(key, new VariableSymbolTableEntry(identifier, value));
+                Entries.Add(key, new List<SymbolTableEntry>() { new VariableSymbolTableEntry(identifier, value) });
             } else {
                 var entry = Entries[key];
-                if (entry.Type != SymbolTableEntry.EntryType.Variable)
+                if (entry.First().Type != SymbolTableEntry.EntryType.Variable)
                     throw new Exception($"Identifier {identifier} type mismatch");
-                (entry as VariableSymbolTableEntry).Value = value;
+                (entry.First() as VariableSymbolTableEntry).Value = value;
             }
         }
 
-        public void AddFunction<T>() {
+        public void AddFunctions<T>() {
             // Get all Public Static Functions that return double and take double parameter types
             // 1 - must have double return type
             // 2 - parameters must be of type double
@@ -72,14 +72,18 @@ namespace YAMEP_LEARN {
                 .Where(mi => typeof(double).IsAssignableFrom(mi.ReturnType))
                 .Where(mi => !mi.GetParameters().Any(param => !param.ParameterType.IsAssignableFrom(typeof(double))));
 
-            foreach (var mi in methods)
-                Entries.Add(mi.Name.ToLower(), new FunctionSymbolTableEntry(mi));
+            foreach (var mi in methods) {
+                if (Entries.ContainsKey(mi.Name.ToLower()))
+                    Entries[mi.Name.ToLower()].Add(new FunctionSymbolTableEntry(mi));
+                else
+                    Entries.Add(mi.Name.ToLower(), new List<SymbolTableEntry>() { new FunctionSymbolTableEntry(mi) });
+            }
         }
 
-        public SymbolTableEntry Get(string identifier)
-            => Entries.ContainsKey(identifier.ToLower()) 
+        public List<SymbolTableEntry> Get(string identifier)
+            => Entries.ContainsKey(identifier.ToLower())
             ? Entries[identifier.ToLower()] : null;
 
-        public Dictionary<string, SymbolTableEntry> GetAll() => Entries;
+        public Dictionary<string, List<SymbolTableEntry>> GetAll() => Entries;
     }
 }

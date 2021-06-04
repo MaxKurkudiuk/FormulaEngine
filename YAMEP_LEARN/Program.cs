@@ -11,9 +11,14 @@ namespace YAMEP_LEARN {
      */
     class Program {
         static void Main(string[] args) {
+            Console.WriteLine(Math.Abs(4));
+            Console.WriteLine(Math.Pow(4, 4));
+            Console.WriteLine(Math.Exp(4));
+            Console.WriteLine(System.Double.MaxValue);
+            //Console.WriteLine(Math.Log10(10)); return;
 
             //SymbolTable symbol = new SymbolTable();
-            //symbol.AddFunction<MyFunctions>();
+            //symbol.AddFunction<SupportedFunctions>();
             //foreach (var function in symbol.GetAll()) {
             //    Console.WriteLine(function.Key);
             //}
@@ -26,15 +31,15 @@ namespace YAMEP_LEARN {
             //var arg = new NumberASTNode(new Token(Token.TokenType.Number, 0, "5"));
             //funcAST.ArgumentsNodes.Add(arg);
             //var ee = new ExpressionEngine();
-            //ee.AddFunctions<MyFunctions>();
+            //ee.AddFunctions<SupportedFunctions>();
             //var result = ee.Evaluate(funcAST);
             //Console.WriteLine(result);
 
             var expEngine = new ExpressionEngine();
-            expEngine.AddFunctions<MyFunctions>();
-            var result = expEngine.Evaluate("Sin(5)");
+            expEngine.AddFunctions<SupportedFunctions>();
+            var result = expEngine.Evaluate("Log(5)");
             Console.WriteLine(result);
-            result = expEngine.Evaluate("Sin(5, 5)");
+            result = expEngine.Evaluate("Log(5, 5)");
             Console.WriteLine(result);
             return;
 
@@ -65,16 +70,5 @@ namespace YAMEP_LEARN {
             foreach (var e in expressions)
                 Console.WriteLine($"{e} = {evalEngine.Evaluate(e)}");
         }
-    }
-
-    public class MyFunctions {
-        public static double Sin(double a) => Math.Sin(a);
-        public static double Cos(double a) => Math.Cos(a);
-        public static double Tg(double a) => Math.Tan(a);
-        public static double Ctg(double a) => 1.0 / Math.Tan(a);
-
-        public static string Not_Me_1(double a) => $"{a}";
-        public static double Not_Me_2(string a) => a.Length;
-        public static double Not_Me_3(string a, double b) => a.Length + b;
     }
 }

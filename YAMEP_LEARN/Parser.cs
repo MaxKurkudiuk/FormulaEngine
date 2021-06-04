@@ -186,11 +186,11 @@ namespace YAMEP_LEARN {
             node = null;
             if (IsNext(Token.TokenType.Identifier)) {
                 var token = _lexer.Peek();
-                var stEntry = _symbolTable.Get(token.Value);
-                if (stEntry == null)
+                var stEntrys = _symbolTable.Get(token.Value);
+                if (stEntrys == null)
                     throw new Exception($"Undefined Identifier {token.Value} at position {token.Position}");
 
-                if (stEntry.Type == SymbolTableEntry.EntryType.Variable)
+                if (stEntrys.First().Type == SymbolTableEntry.EntryType.Variable)
                     node = new VariableIdentifierASTNode(Accept());
             }
             return node != null;
@@ -201,11 +201,11 @@ namespace YAMEP_LEARN {
             node = null;
             if (IsNext(Token.TokenType.Identifier)) {
                 var token = _lexer.Peek();
-                var stEntry = _symbolTable.Get(token.Value);
-                if (stEntry == null)
+                var stEntrys = _symbolTable.Get(token.Value);
+                if (stEntrys == null)
                     throw new Exception($"Undefined Identifier {token.Value} at position {token.Position}");
 
-                if (stEntry.Type == SymbolTableEntry.EntryType.Fucntion) {
+                if (stEntrys.All(e => e.Type == SymbolTableEntry.EntryType.Fucntion)) {
                     node = new FunctionASTNode(Accept());
 
                     Expect(Token.TokenType.OpenParen);
